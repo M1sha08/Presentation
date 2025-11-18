@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Development of the European Union</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative; /* Added to contain the absolute slides */
+        }
+        
+        .slide {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.4);
+            max-width: 1100px;
+            width: 100%;
+            min-height: 600px;
+            display: none;
+            overflow: hidden;
+            
+            /* --- THIS IS THE KEY FIX --- */
+            /* This stacks slides on top of each other, 
+               preventing them from fighting for space. */
+            position: absolute; 
+            
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .slide.active {
+            display: flex; 
+            flex-direction: column;
+            animation: slideIn 0.6s ease forwards;
+        }
+
+        .slide.exiting {
+            display: flex; 
+            flex-direction: column;
+            animation: slideOut 0.5s ease forwards;
+        }
+        
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-30px); /* Animate up */
+            }
+        }
+        
+        /* Image background for content slides */
+        .slide-image-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        
+        .slide.active .slide-image-bg {
+            opacity: 1;
+        }
+        
+        /* Dark overlay for better text readability */
+        .slide-image-bg::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.85) 0%, rgba(30, 64, 175, 0.85) 100%);
+            z-index: 1;
+        }
+        
+        /* Alternative: gradient background for title slide */
+        .slide-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 0;
+            opacity: 1;
+        }
+        
+        .slide-content-wrapper {
+            position: relative;
+            z-index: 2;
+            padding: 50px 60px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .slide-title {
+            text-align: center;
+            padding: 60px 40px;
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.2s forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .slide-title {
+            transform: translateY(20px);
+        }
+        
+        .slide-title .emoji {
+            font-size: 90px;
+            margin-bottom: 25px;
+            animation: bounce 2s ease infinite;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .slide-title h1 {
+            color: #ffffff;
+            font-size: 52px;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            font-weight: 700;
+        }
+        
+        .slide-title .subtitle {
+            color: #fde68a;
+            font-size: 26px;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            font-weight: 600;
+        }
+        
+        .slide-title .description {
+            color: #e5e7eb;
+            font-size: 22px;
+            font-style: italic;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            font-weight: 400; /* Poppins is heavier, adjusted */
+        }
+        
+        .slide-content h2 {
+            color: #ffffff;
+            font-size: 38px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.7), rgba(30, 58, 138, 0.8));
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: 700;
+            opacity: 0;
+            transform: translateX(-30px);
+            animation: slideInLeft 0.6s ease 0.1s forwards;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        
+        @keyframes slideInLeft {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .slide-content .subtitle {
+            color: #fde68a;
+            font-size: 21px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.6), rgba(30, 58, 138, 0.7));
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 25px;
+            border-radius: 8px;
+            opacity: 0;
+            transform: translateX(-30px);
+            animation: slideInLeft 0.6s ease 0.2s forwards;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .slide-content ul {
+            list-style: none;
+            padding: 0;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 25px 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .slide-content li {
+            color: #ffffff;
+            font-size: 18px;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            padding-left: 35px;
+            position: relative;
+            opacity: 0;
+            transform: translateX(-20px);
+            font-weight: 400; /* Poppins regular */
+        }
+        
+        .slide.active .slide-content li:nth-child(1) { animation: slideInLeft 0.5s ease 0.4s forwards; }
+        .slide.active .slide-content li:nth-child(2) { animation: slideInLeft 0.5s ease 0.5s forwards; }
+        .slide.active .slide-content li:nth-child(3) { animation: slideInLeft 0.5s ease 0.6s forwards; }
+        .slide.active .slide-content li:nth-child(4) { animation: slideInLeft 0.5s ease 0.7s forwards; }
+        .slide.active .slide-content li:nth-child(5) { animation: slideInLeft 0.5s ease 0.8s forwards; }
+        
+        .slide-content li:before {
+            content: "→";
+            color: #fbbf24;
+            font-size: 24px;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+            transition: width 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(251, 191, 36, 0.6);
+        }
+        
+        @media (max-width: 768px) {
+            .slide-content-wrapper {
+                padding: 30px 25px;
+            }
+            
+            .slide-title h1 {
+                font-size: 36px;
+            }
+            
+            .slide-content h2 {
+                font-size: 28px;
+            }
+            
+            .slide-content li {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <div class="container" id="gestureZone">
+        <div class="slide">
+            <div class="slide-background"></div>
+            <div class="slide-content-wrapper">
+                <div class="slide-title">
+                    <div class="emoji">🇪🇺</div>
+                    <h1>Development of the European Union</h1>
+                    <div class="subtitle">A Chronological Review</div>
+                    <div class="description">From Economic Community to Political Union</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slide">
+            <div class="slide-image-bg" style="background-image: url('images/1957-treaty.jpg');"></div>
+            <div class="slide-content-wrapper">
+                <div class="slide-content">
+                    <h2>1957: The Beginning</h2>
+                    <div class="subtitle">European Economic Community (EEC)</div>
+                    <ul>
+                        <li>Belgium, Germany, France, Italy, Luxembourg, and Netherlands founded the EEC</li>
+                        <li>Focus: Economic cooperation and integration</li>
+                        <li>Goal: Prevent future wars through economic interdependence</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slide">
+            <div class="slide-image-bg" style="background-image: url('images/1973-expansion.jpg');"></div>
+            <div class="slide-content-wrapper">
+                <div class="slide-content">
+                    <h2>1968-1973: Expansion Begins</h2>
+                    <div class="subtitle">From 'The 6' to 'The 9'</div>
+                    <ul>
+                        <li>1968: All import duties abolished between member states</li>
+                        <li>1973: First enlargement - Denmark, UK, and Ireland join</li>
+                        <li>The EEC becomes 'The 9'</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slide">
+            <div class="slide-image-bg" style="background-image: url('images/1979-parliament.jpg');"></div>
+            <div class="slide-content-wrapper">
+                <div class="slide-content">
+                    <h2>1979-1981: Democratic Development</h2>
+                    <div class="subtitle">Citizens Get a Voice</div>
+                    <ul>
+                        <li>1979: First direct elections to European Parliament</li>
+                        <li>Citizens could now elect their representatives</li>
+                        <li>1981: Greece joins, making it 'The 10'</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slide">
+            <div class="slide-image-bg" style="background-image: url('images/1986-mediterranean.jpg');"></div>
+            <div class="slide-content-wrapper">
+                <div class="slide-content">
+                    <h2>1986: Further Growth</h2>
+                    <div class="subtitle">Mediterranean Expansion</div>
+                    <ul>
+                        <li>Spain and Portugal join the community</li>
+                        <li>'The 10' becomes 'The 12'</li>
+                        <li>EEC drops 'Economic' and becomes European Community (EC)</li>
+                        <li>Shift toward broader cooperation beyond just economics</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slide">
+            <div class="slide-image-bg" style="background-image: url('images/1990-germany.jpg');"></div>
+            <div class="slide-content-wrapper">
+                <div class="slide-content">
+                    <h2>1990-1992: Transformation Era</h2>
+                    <div class="subtitle">From EC to EU</div>
+                    <ul>
+                        <li>1990: German reunification - former East Germany joins as part of unified Germany</li>
+                        <li>1992: Maastricht Treaty signed</li>
+                        <li>EC becomes European Union (EU)</li>
+                        <li>Decision to introduce the euro currency</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slide">
+            <div class="slide-image-bg" style="background-image: url('images/1993-schengen.jpg');"></div>
+            <div class="slide-content-wrapper">
+                <div class="slide-content">
+                    <h2>1993-1995: Freedom of Movement</h2>
+                    <div class="subtitle">Schengen and New Members</div>
+                    <ul>
+                        <li>1993: Schengen Agreement - internal borders abolished in most EU countries</li>
+                        <li>Free movement of people without passport controls</li>
+                        <li>1995: Austria, Sweden, and Finland join</li>
+                        <li>'The 12' becomes 'The 15'</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slide">
+            <div class="slide-image-bg" style="background-image: url('images/1999-euro.jpg');"></div>
+            <div class="slide-content-wrapper">
+                <div class="slide-content">
+                    <h2>1998-1999: The Euro Arrives</h2>
+                    <div class="subtitle">Common Currency Becomes Reality</div>
+                    <ul>
+                        <li>1998: EU begins negotiations with 6 applicants (Czech Republic, Hungary, Poland, and others)</li>
+                        <li>1999: Euro becomes official currency of exchange in 11 EU countries</li>
+                        <li>First major step toward monetary union</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slide">
+            <div class="slide-image-bg" style="background-image: url('images/2002-euro-physical.jpg');"></div>
+            <div class="slide-content-wrapper">
+                <div class="slide-content">
+                    <h2>2000-2002: Physical Euro and Expansion Plans</h2>
+                    <div class="subtitle">Currency in Hand, More Members Ahead</div>
+                    <ul>
+                        <li>2000: Negotiations begin with 6 more applicants (Bulgaria, Romania, Slovakia)</li>
+                        <li>2001: Ireland rejects Nice Treaty, threatening EU expansion</li>
+                        <li>2002: Euro coins and notes replace national currencies in 12 eurozone countries</li>
+                        <li>Citizens can now physically use the euro</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slide">
+            <div class="slide-image-bg" style="background-image: url('images/2004-modern.jpg');"></div>
+            <div class="slide-content-wrapper">
+                <div class="slide-content">
+                    <h2>Beyond 2002: Continued Evolution</h2>
+                    <div class="subtitle">What Happened Next</div>
+                    <ul>
+                        <li>2004: Largest enlargement - 10 countries join (including Poland, Czech Republic, Hungary)</li>
+                        <li>2m 007: Bulgaria and Romania join, making 27 members</li>
+                        <li>2009: Lisbon Treaty strengthens EU institutions</li>
+                        <li>2013: Croatia joins (28 members)</li>
+                        <li>2020: United Kingdom leaves the EU (Brexit)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slide">
+            <div class="slide-image-bg" style="background-image: url('images/themes.jpg');"></div>
+            <div class="slide-content-wrapper">
+                <div class="slide-content">
+                    <h2>Key Themes in EU Development</h2>
+                    <div class="subtitle">Three Pillars of Integration</div>
+                    <ul>
+                        <li>Economic Integration: From free trade to common currency</li>
+                        <li>Political Evolution: From cooperation to union with shared institutions</li>
+                        <li>Geographic Expansion: From 6 members to 27 (currently)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slide">
+            <div class="slide-image-bg" style="background-image: url('images/summary.jpg');"></div>
+            <div class="slide-content-wrapper">
+                <div class="slide-content">
+                    <h2>Summary</h2>
+                    <div class="subtitle">The EU Journey</div>
+                    <ul>
+                        <li>Started as an economic project (1957) to prevent war</li>
+                        <li>Gradually expanded membership and cooperation areas</li>
+                        <li>Evolved from economic to political union</li>
+                        <li>Introduced common currency and free movement</li>
+                        <li>Continues to adapt to new challenges and opportunities</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const progressBar = document.getElementById('progressBar');
+        let isAnimating = false; // To prevent rapid clicks
+
+        function updateProgressBar() {
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            progressBar.style.width = progress + '%';
+        }
+
+        function showSlide(newIndex, oldIndex = -1) {
+            if (isAnimating && oldIndex !== -1) return;
+            
+            const newSlide = slides[newIndex];
+
+            if (oldIndex !== -1) {
+                isAnimating = true;
+                const oldSlide = slides[oldIndex];
+                
+                oldSlide.classList.remove('active');
+                oldSlide.classList.add('exiting');
+                
+                oldSlide.addEventListener('animationend', () => {
+                    oldSlide.classList.remove('exiting');
+                    oldSlide.style.display = 'none'; 
+                    isAnimating = false;
+                }, { once: true });
+            }
+
+            // Prepare new slide
+            newSlide.style.display = 'flex'; // Make it visible
+            
+            /* --- THIS IS THE 2ND FIX --- */
+            // This is a more reliable way than setTimeout to ensure the 
+            // 'display' style is applied *before* the animation class.
+            requestAnimationFrame(() => {
+                // We nest a second one to be extra sure we are in the next paint frame
+                requestAnimationFrame(() => {
+                    newSlide.classList.add('active');
+                });
+            });
+            
+            updateProgressBar();
+        }
+
+        function changeSlide(direction) {
+            if (isAnimating) return; 
+
+            const oldSlideIndex = currentSlide;
+            let newSlideIndex = currentSlide + direction;
+            
+            if (newSlideIndex < 0) newSlideIndex = 0;
+            if (newSlideIndex >= totalSlides) newSlideIndex = totalSlides - 1;
+
+            if (newSlideIndex === oldSlideIndex) return;
+            
+            currentSlide = newSlideIndex;
+            showSlide(currentSlide, oldSlideIndex);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+        });
+
+        // --- Swipe navigation ---
+        let touchstartX = 0;
+        let touchendX = 0;
+        const gestureZone = document.getElementById('gestureZone');
+
+        gestureZone.addEventListener('touchstart', function(event) {
+            touchstartX = event.changedTouches[0].screenX;
+        }, false);
+
+        gestureZone.addEventListener('touchend', function(event) {
+            touchendX = event.changedTouches[0].screenX;
+            handleSwipe();
+        }, false); 
+
+        function handleSwipe() {
+            const swipeThreshold = 50; // Min pixels swiped
+            if (touchendX < touchstartX - swipeThreshold) { // Swiped left
+                changeSlide(1);
+            }
+            if (touchendX > touchstartX + swipeThreshold) { // Swiped right
+                changeSlide(-1);
+            }
+        }
+        // --- End of Swipe navigation ---
+
+        // Initial load
+        slides[0].style.display = 'flex'; // Show the first slide
+        slides[0].classList.add('active');
+        updateProgressBar();
+    </script>
+</body>
+</html>
